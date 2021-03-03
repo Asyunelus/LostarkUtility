@@ -100,6 +100,7 @@ ipcRenderer.send('reinforce_calc', calcinfo);
 
 ipcRenderer.send('conn_check', 'test');
 
+
 export default function TemporaryDrawer(props) {
   //const { window } = props;
 

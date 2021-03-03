@@ -91,6 +91,70 @@ calculate_reinforce = async function(tier, subtier, start, end, isWeapon, option
   });
 }
 
+market_search = async function(arg) {
+  var response = {
+    result: false,
+    result_msg: '',
+    count: 0,
+    data: {
+    }
+  };
+  
+  try {
+    var i = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+    var uri = 'https://lostark.game.onstove.com/Market/GetMarketItemList?firstCategory=0&secondCategory=0&characterClass=&tier=0&grade=99f&pageSize=10&pageNo=1&isInit=false&sortType=7&_=1614749730226&itemName=' + arg;
+    var result = await ParseByUri(uri)
+
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = i;
+    if (result === null || result === undefined)
+      throw 'Error';
+    
+    var $ = cheerio.load(result);
+
+    var list = new Array();
+
+    $('#tbodyItemList').find('tr').each(function() {
+      var trTag = $(this)
+      var res = {
+        name: "",
+        yesterday_average: 0,
+        recent_price: 0,
+        price: 0
+      };
+
+      trTag.eq(0).find('.name').each(function() {
+        res.name = $(this).text().trim();
+      });
+      res.yesterday_average = parseInt(trTag.children().eq(1).children().eq(0).children().eq(0).text().trim());
+      res.recent_price = parseInt(trTag.children().eq(2).children().eq(0).children().eq(0).text().trim());
+      res.price = parseInt(trTag.children().eq(3).children().eq(0).children().eq(0).text().trim());
+      list.push(res);
+    });
+
+    response.count = list.length;
+    response.data = list;
+
+    response.result = true;
+    response.result_msg = 'response_ok';
+  } catch(e) {
+    response.result = false;
+    response.result_msg = e;
+  }
+  return response;
+}
+
+get_market_price = async function(name) {
+  var res = await market_search(name);
+  if (res.count > 0) {
+    var res = res.data[0].price;
+    if (isNaN(res)) return 0;
+    return res;
+  }
+  return 0;
+}
+
 ipcMain.on('reinforce_calc', async(event, arg) => {
   var Flag = true;
   var FlagMsg = "response_ok";
@@ -167,6 +231,21 @@ ipcMain.on('reinforce_calc', async(event, arg) => {
           ""
         ]
       },
+      prices: {
+        material_weapon: 0,
+        material_armor: 0,
+        stone: 0,
+        melt: 0,
+        experience: 0,
+        breath: [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
       option: arg.option,
       current: arg.current,
       target: arg.target,
@@ -175,6 +254,19 @@ ipcMain.on('reinforce_calc', async(event, arg) => {
       notice: "장비 성장 실링은 계산에 포함되지 않아, 표기된 실링보다 더 많이 소모됩니다."
     }
   };
+  response.data.prices.material_weapon = parseFloat(await get_market_price(response.data.names.material_weapon)) / 10;
+  response.data.prices.material_armor = parseFloat(await get_market_price(response.data.names.material_armor)) / 10;
+  response.data.prices.stone = await get_market_price(response.data.names.stone);
+  response.data.prices.melt = await get_market_price(response.data.names.melt);
+  response.data.prices.experience = parseFloat(await get_market_price(response.data.names.experience + " 주머니(대)")) / 1500,
+  response.data.prices.breath = [
+    await get_market_price(response.data.names.breath[0]),
+    await get_market_price(response.data.names.breath[1]),
+    await get_market_price(response.data.names.breath[2]),
+    await get_market_price(response.data.names.breath[3]),
+    await get_market_price(response.data.names.breath[4]),
+    0
+  ];
 
   if (Flag) {
     let AsyncList = new Array();
@@ -216,6 +308,12 @@ ipcMain.on('reinforce_calc', async(event, arg) => {
 });
 
 //---------------------------------------------------------------------------------
+ipcMain.on('market_search', async(event, arg) => {
+  event.sender.send('market_search_response', await market_search(arg));
+})
+//---------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------------
 // Char Search
 //---------------------------------------------------------------------------------
 ipcMain.on('char_search', async(event, arg) => {
@@ -244,8 +342,8 @@ ipcMain.on('char_search', async(event, arg) => {
   };
 
   try {
-  var uri = 'https://lostark.game.onstove.com/Profile/Character/' + arg;
-  var result = await ParseByUri(uri)
+    var uri = 'https://lostark.game.onstove.com/Profile/Character/' + arg;
+    var result = await ParseByUri(uri)
     if (result === null || result === undefined)
       throw 'Error'
     var $ = cheerio.load(result);

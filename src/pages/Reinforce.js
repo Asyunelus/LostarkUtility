@@ -53,7 +53,7 @@ Number.prototype.format = function(){
     if(this==0) return 0;
  
     var reg = /(^[+-]?\d+)(\d{3})/;
-    var n = (this + '');
+    var n = ((Math.ceil(this * 100) / 100) + '');
  
     while (reg.test(n)) n = n.replace(reg, '$1' + ',' + '$2');
  
@@ -101,6 +101,7 @@ class Reinforce extends React.Component {
   }
 
   ReinforceCalcResponse(event, arg) {
+    console.log(arg);
     this.setState({calculated: arg});
   }
 
@@ -198,6 +199,55 @@ class Reinforce extends React.Component {
       if (this.state.calculated.result === undefined || this.state.calculated.result !== true) {
         return (<p/>);
       } else {
+        var counts = {
+          gold: this.state.calculated.data.materials.gold,
+          money: this.state.calculated.data.materials.money,
+          material_weapon: this.state.calculated.data.materials.material.weapon,
+          material_armor: this.state.calculated.data.materials.material.armor,
+          stone: this.state.calculated.data.materials.stone,
+          melt: this.state.calculated.data.materials.meltmaterial,
+          experience: this.state.calculated.data.materials.experience,
+          breath1: this.state.calculated.data.materials.breath.base[0],
+          breath2: this.state.calculated.data.materials.breath.base[1],
+          breath3: this.state.calculated.data.materials.breath.base[2],
+          breath4: this.state.calculated.data.materials.breath.book_weapon,
+          breath5: this.state.calculated.data.materials.breath.book_armor,
+          breath6: 0
+        };
+        var prices = {
+          material_weapon: this.state.calculated.data.prices.material_weapon,
+          material_armor: this.state.calculated.data.prices.material_armor,
+          stone: this.state.calculated.data.prices.stone,
+          melt: this.state.calculated.data.prices.melt,
+          experience: this.state.calculated.data.prices.experience,
+          gold: 1,
+          money: 0.01,
+          breath1: this.state.calculated.data.prices.breath[0],
+          breath2: this.state.calculated.data.prices.breath[1],
+          breath3: this.state.calculated.data.prices.breath[2],
+          breath4: this.state.calculated.data.prices.breath[3],
+          breath5: this.state.calculated.data.prices.breath[4],
+          breath6: 0
+        };
+
+        var mergedwithoutbreath = 
+          counts.gold * prices.gold
+          + counts.material_weapon * prices.material_weapon
+          + counts.material_armor * prices.material_armor
+          + counts.stone * prices.stone
+          + counts.melt * prices.melt
+          + counts.experience * prices.experience;
+
+        var merged = mergedwithoutbreath
+          + counts.breath1 * prices.breath1
+          + counts.breath2 * prices.breath2
+          + counts.breath3 * prices.breath3
+          + counts.breath4 * prices.breath4
+          + counts.breath5 * prices.breath5
+          + counts.breath6 * prices.breath6
+        ;
+        var mergedwithmoney = merged
+          + counts.money * prices.money;
         return (
           <Table>
             <TableHead>
@@ -211,83 +261,87 @@ class Reinforce extends React.Component {
             <TableBody>
               <TableRow>
                 <TableCell>순수 골드</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.gold).format()} 골드</TableCell>
-                <TableCell align="right">1 골드</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.gold).format()} 골드</TableCell>
+                <TableCell align="right">{counts.gold.format()} 골드</TableCell>
+                <TableCell align="right">{prices.gold} 골드</TableCell>
+                <TableCell align="right">{(counts.gold * prices.gold).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>순수 실링</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.money).format()} 실링</TableCell>
-                <TableCell align="right">0.01 골드</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.money * 0.01).format()} 골드</TableCell>
+                <TableCell align="right">{counts.money.format()} 실링</TableCell>
+                <TableCell align="right">{prices.money} 골드</TableCell>
+                <TableCell align="right">{(counts.money * prices.money).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.material_weapon}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.material.weapon).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.material_weapon.format()} 개</TableCell>
+                <TableCell align="right">{prices.material_weapon.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.material_weapon * counts.material_weapon).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.material_armor}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.material.armor).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.material_armor.format()} 개</TableCell>
+                <TableCell align="right">{prices.material_armor.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.material_armor * counts.material_armor).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.stone}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.stone).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.stone.format()} 개</TableCell>
+                <TableCell align="right">{prices.stone.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.stone * counts.stone).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.melt}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.meltmaterial).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.melt.format()} 개</TableCell>
+                <TableCell align="right">{prices.melt.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.melt * counts.melt).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.experience}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.experience).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.experience.format()} 개</TableCell>
+                <TableCell align="right">{prices.experience.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.experience * counts.experience).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.breath[0]}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.breath.base[0]).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.breath1.format()} 개</TableCell>
+                <TableCell align="right">{prices.breath1.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.breath1 * counts.breath1).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.breath[1]}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.breath.base[1]).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.breath2.format()} 개</TableCell>
+                <TableCell align="right">{prices.breath2.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.breath2 * counts.breath2).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.breath[2]}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.breath.base[2]).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.breath3.format()} 개</TableCell>
+                <TableCell align="right">{prices.breath3.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.breath3 * counts.breath3).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.breath[3]}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.breath.book_weapon).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.breath4.format()} 개</TableCell>
+                <TableCell align="right">{prices.breath4.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.breath4 * counts.breath4).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>{this.state.calculated.data.names.breath[4]}</TableCell>
-                <TableCell align="right">{Math.ceil(this.state.calculated.data.materials.breath.book_armor).format()} 개</TableCell>
-                <TableCell align="right"></TableCell>
-                <TableCell align="right"></TableCell>
+                <TableCell align="right">{counts.breath5.format()} 개</TableCell>
+                <TableCell align="right">{prices.breath5.format()} 골드</TableCell>
+                <TableCell align="right">{(prices.breath5 * counts.breath5).format()} 골드</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={3} align="center">합계(실링, 숨결 제외)</TableCell>
+                <TableCell align="right">{mergedwithoutbreath.format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell colSpan={3} align="center">합계(실링 제외)</TableCell>
-                <TableCell align="right">0 골드</TableCell>
+                <TableCell align="right">{merged.format()} 골드</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell colSpan={3} align="center">합계(실링 포함)</TableCell>
-                <TableCell align="right">0 골드</TableCell>
+                <TableCell align="right">{mergedwithmoney.format()} 골드</TableCell>
               </TableRow>
             </TableBody>
           </Table>
