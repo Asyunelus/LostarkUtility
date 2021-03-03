@@ -1,21 +1,55 @@
 {
   "name": "lostarkutil",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "cheerio": "^1.0.0-rc.5",
+    "clsx": "^1.1.1",
+    "electron-is-dev": "^1.2.0",
+    "node-fetch": "^2.6.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-hook-form": "^6.15.4",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.2",
     "web-vitals": "^1.0.1"
+  },
+  "author": {
+    "name": "Asyunelus"
+  },
+  "homepage": "./",
+  "main": "public/electron.js",
+  "build": {
+    "icon": "asset/LOSTARK.ico",
+    "appId": "kr.asyu.lostarkutil",
+    "copyright": "Copyright 2021 Asyunelus. All rights reserved.",
+    "npmRebuild": true,
+    "files": [
+      "asset/**/*",
+      "app/**/*",
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "target": "exe"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "start-interface": "cross-env BROWSER=none npm run start",
+    "start-electron": "electron .",
+    "start-electron-after-interface": "wait-on http://localhost:3000 && npm run start-electron",
+    "dev": "concurrently -n interface,app 'npm:start-interface' 'npm:start-electron-after-interface'",
+    "dist": "npm run build && electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps",
+    "electron-pack": "yarn build && electron-builder build -c.extraMetadata.main=build/electron.js",
+    "electron-portable": "yarn build && electron-builder build --win portable -c.extraMetadata.main=build/electron.js"
   },
   "eslintConfig": {
     "extends": [
@@ -34,5 +68,13 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "concurrently": "^6.0.0",
+    "cross-env": "^7.0.3",
+    "electron": "^11.3.0",
+    "electron-builder": "^22.9.1",
+    "wait-on": "^5.2.1"
+  },
+  "license": "AGPL-3.0"
 }
