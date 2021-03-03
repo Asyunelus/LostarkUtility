@@ -30,7 +30,7 @@ const createWindow = () => {
     // BrowserWindow.addDevToolsExtension('<location to your react chrome extension>')
     // mainWindow.webContents.openDevTools()
   } else {
-    //Menu.setApplicationMenu(null);
+    Menu.setApplicationMenu(null);
   }
   mainWindow.on('closed', () => {
     mainWindow = null

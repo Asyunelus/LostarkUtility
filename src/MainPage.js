@@ -3,15 +3,12 @@ import { Redirect, Route, Switch, HashRouter as Router } from "react-router-dom"
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
-import Button from '@material-ui/core/Button';
 import Link from '@material-ui/core/Link';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import AppBar from '@material-ui/core/AppBar';
@@ -104,7 +101,7 @@ ipcRenderer.send('reinforce_calc', calcinfo);
 ipcRenderer.send('conn_check', 'test');
 
 export default function TemporaryDrawer(props) {
-  const { window } = props;
+  //const { window } = props;
 
   const classes = useStyles();
   const [state, setState] = React.useState({
@@ -219,10 +216,10 @@ export default function TemporaryDrawer(props) {
             <Switch>
               <Route exact path="/" component={Main}/>
               <Route exact path="/reinforce" component={Reinforce}/>
-              {/*<Route exact path="/stone" component={Stone}/>
+              <Route exact path="/stone" component={Stone}/>
               <Route exact path="/enchant" component={Enchant}/>
               <Route exact path="/growth" component={GrowthMain}/>
-              <Route exact path="/user/:name" component={UserInfo}/>*/}
+              <Route exact path="/user/:name" component={UserInfo}/>
               <Route exact path='/error/:err_code' component={NotFoundPage} />
               <Route>
                 <Redirect to='/error/NOT_FOUND_PAGE'/>

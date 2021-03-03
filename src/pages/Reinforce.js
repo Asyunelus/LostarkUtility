@@ -17,6 +17,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import update from 'react-addons-update';
 
 const useStyles = makeStyles({
   bullet: {
@@ -71,7 +72,7 @@ class Reinforce extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
+    this.state ={
       calculated: {result: false},
       error: [false, false, false, false, false, false, false, false, false, false, false, false, false, false],
       value: [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
@@ -100,32 +101,36 @@ class Reinforce extends React.Component {
   }
 
   ReinforceCalcResponse(event, arg) {
-    this.setState({...this.state, calculated: arg});
+    this.setState({calculated: arg});
   }
 
   onChangeReinInput(event) {
-    var idx = event.target.getAttribute('idx');
+    var idx = parseInt(event.target.getAttribute('idx'));
     if (!isNaN(event.target.value) &&
     (event.target.value >= 0 && event.target.value <= 25 && idx < 12)
     || (event.target.value == 3 && idx == 12)
     || (event.target.value >= 1 && event.target.value <= 2 && idx == 13)
     ) {
-      this.state.error[idx] = false;
-      this.state.error_text[idx] = "";
-      this.state.value[idx] = event.target.value;
+      this.setState({
+        error: update(this.state.error, {[idx]: {$set: false}}),
+        error_text: update(this.state.error_text, {[idx]: {$set: ""}}),
+        value: update(this.state.value, {[idx]: {$set: event.target.value}})
+      });
     } else {
       event.target.value = event.target.defaultValue;
-      this.state.value[idx] = -1;
-      this.state.error[idx] = true;
+      var txt = "";
       if (idx == 12)
-        this.state.error_text[idx] = "3 ~ 3 사이의 숫자로 입력해주세요.";
+        txt = "3 ~ 3 사이의 숫자로 입력해주세요.";
       else if (idx == 13)
-        this.state.error_text[idx] = "1 ~ 2 사이의 숫자로 입력해주세요.";
+        txt = "1 ~ 2 사이의 숫자로 입력해주세요.";
       else
-        this.state.error_text[idx] = "0 ~ 25 사이의 숫자로 입력해주세요.";
+        txt = "0 ~ 25 사이의 숫자로 입력해주세요.";
+      this.setState({
+        error: update(this.state.error, {[idx]: {$set: true}}),
+        error_text: update(this.state.error_text, {[idx]: {$set: txt}}),
+        value: update(this.state.value, {[idx]: {$set: -1}})
+      });
     }
-
-    this.setState(this.state);
   }
 
   CalculateBtn = (props) => {
@@ -180,7 +185,7 @@ class Reinforce extends React.Component {
   }
 
   handleChange = (event) => {
-    this.setState({ ...this.state, [event.target.name]: event.target.checked });
+    this.setState({ [event.target.name]: event.target.checked });
   }
 
   render() {
