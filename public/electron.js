@@ -258,7 +258,17 @@ ipcMain.on('reinforce_calc', async(event, arg) => {
   response.data.prices.material_armor = parseFloat(await get_market_price(response.data.names.material_armor)) / 10;
   response.data.prices.stone = await get_market_price(response.data.names.stone);
   response.data.prices.melt = await get_market_price(response.data.names.melt);
-  response.data.prices.experience = parseFloat(await get_market_price(response.data.names.experience + " 주머니(대)")) / 1500,
+
+  var expCheap = 2147483647;
+  var expPrices = [ parseFloat(await get_market_price(response.data.names.experience + " 주머니(대)")) / 1500
+                  , parseFloat(await get_market_price(response.data.names.experience + " 주머니(중)")) / 1000
+                  , parseFloat(await get_market_price(response.data.names.experience + " 주머니(소)")) / 500];
+  
+  for(var i = 0; i < 2; ++i)
+    if (expPrices[i] < expCheap)
+      expCheap = expPrices[i];
+
+  response.data.prices.experience = expCheap,
   response.data.prices.breath = [
     await get_market_price(response.data.names.breath[0]),
     await get_market_price(response.data.names.breath[1]),

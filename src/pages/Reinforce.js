@@ -230,24 +230,25 @@ class Reinforce extends React.Component {
           breath6: 0
         };
 
-        var mergedwithoutbreath = 
-          counts.gold * prices.gold
+        var merge_base = counts.gold * prices.gold
           + counts.material_weapon * prices.material_weapon
           + counts.material_armor * prices.material_armor
-          + counts.stone * prices.stone
-          + counts.melt * prices.melt
-          + counts.experience * prices.experience;
+          + counts.melt * prices.melt;
+        
+        var merge_experience = counts.experience * prices.experience;
 
-        var merged = mergedwithoutbreath
-          + counts.breath1 * prices.breath1
+        var merge_breath = counts.breath1 * prices.breath1
           + counts.breath2 * prices.breath2
           + counts.breath3 * prices.breath3
           + counts.breath4 * prices.breath4
           + counts.breath5 * prices.breath5
-          + counts.breath6 * prices.breath6
-        ;
-        var mergedwithmoney = merged
-          + counts.money * prices.money;
+          + counts.breath6 * prices.breath6;
+
+        var merge_money = counts.money * prices.money;
+
+        var merge_stone = counts.stone * prices.stone;
+        
+        var merge_total = merge_base + merge_breath + merge_money + merge_stone + merge_experience;
         return (
           <Table>
             <TableHead>
@@ -332,16 +333,28 @@ class Reinforce extends React.Component {
                 <TableCell align="right">{(prices.breath5 * counts.breath5).format()} 골드</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell colSpan={3} align="center">합계(실링, 숨결 제외)</TableCell>
-                <TableCell align="right">{mergedwithoutbreath.format()} 골드</TableCell>
+                <TableCell colSpan={3} align="center">합계 (강화재료)</TableCell>
+                <TableCell align="right">{merge_base.format()} 골드</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell colSpan={3} align="center">합계(실링 제외)</TableCell>
-                <TableCell align="right">{merged.format()} 골드</TableCell>
+                <TableCell colSpan={3} align="center">합계 (돌파석)</TableCell>
+                <TableCell align="right">{merge_stone.format()} 골드</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell colSpan={3} align="center">합계(실링 포함)</TableCell>
-                <TableCell align="right">{mergedwithmoney.format()} 골드</TableCell>
+                <TableCell colSpan={3} align="center">합계 (파편)</TableCell>
+                <TableCell align="right">{merge_experience.format()} 골드</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={3} align="center">합계 (숨결)</TableCell>
+                <TableCell align="right">{merge_breath.format()} 골드</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={3} align="center">합계 (실링 제외 전부)</TableCell>
+                <TableCell align="right">{(merge_total - merge_money).format()} 골드</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={3} align="center">합계 (실링 포함 전부)</TableCell>
+                <TableCell align="right">{merge_total.format()} 골드</TableCell>
               </TableRow>
             </TableBody>
           </Table>
